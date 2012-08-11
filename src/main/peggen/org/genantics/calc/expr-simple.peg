@@ -1,0 +1,45 @@
+#-----------------------------------------------------------------
+# Expression grammar example using simple syntax
+#
+# The grammar illustrates the "Fordian" style of whitespace
+# handling. While no distinction is made in PEG parsers
+# between lexical and grammatical rules (the uppercase
+# rule names affect only the human reader) separating
+# out the "lexical" rules allows a uniform treatment of
+# whitepace, and removes the clutter from the "grammatical"
+# rules. Note that S appears only once above the break,
+# at the start of the grammar.
+#
+# Matched rules are Node values in the output except:
+#
+#   - Rules with name followed by ~, like Unary
+#   - Rules with name followed by ~n where the body does not
+#     match at least n rules, like Sum, Prod and Power.
+#
+# Thus, the only Nodes that appear in the parser output
+# unconditionally are Unary, MUL, DIV, ADD, SUB, MINUS and NUMBER.
+# Sum, Prod and Power may appear if they have more than
+# one child.
+#
+# The . term matches any character. !. does not match any
+# character, and hence matches the end of input.
+#-----------------------------------------------------------------
+
+Grammar~  =  S? Sum !.
+Sum~2     =  Prod ((ADD | SUB) Prod)*
+Prod~2    =  Power ((MUL | DIV) Power)*
+Power~2   =  Unary (POW Power)*
+Unary~2   =  MINUS? Term
+Term~     =  NUMBER | LEFT Sum RIGHT
+
+POW~      =  '^' S?
+LEFT~     =  '(' S?
+RIGHT~    =  ')' S?
+MUL       =  '*' S?
+DIV       =  '/' S?
+ADD       =  '+' S?
+SUB       =  '-' S?
+MINUS     =  '-' S?
+NUMBER    =  DIGIT+ ('.' DIGIT+ | [eE] [-+]? DIGIT+ )? S?
+DIGIT~    =  [0-9]
+S~        =  [ \t\r\n]+
